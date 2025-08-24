@@ -1,10 +1,10 @@
-
 import streamlit as st
-import cv2
-import numpy as np
 from PIL import Image
 import pandas as pd
 import io
+
+# Placeholder for barcode detection (since pyzxing requires Java and is not supported in Streamlit Cloud)
+# We'll simulate barcode detection with a manual input fallback
 
 st.markdown("""
     <style>
@@ -41,19 +41,14 @@ if "inventory" not in st.session_state:
     st.session_state.inventory = {}
 
 if uploaded_image is not None:
-    image = Image.open(uploaded_image)
-    image_np = np.array(image.convert('RGB'))
-    gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
-    detector = cv2.QRCodeDetector()
-    data, bbox, _ = detector.detectAndDecode(gray)
-    if data:
-        if data in st.session_state.inventory:
-            st.session_state.inventory[data] += 1
+    st.warning("Barcode detection is not supported in this environment. Please enter the code manually.")
+    barcode_data = st.text_input("Enter barcode manually")
+    if barcode_data:
+        if barcode_data in st.session_state.inventory:
+            st.session_state.inventory[barcode_data] += 1
         else:
-            st.session_state.inventory[data] = 1
-        st.success(f"Scanned and added to inventory: {data}")
-    else:
-        st.warning("No barcode detected. Please try again.")
+            st.session_state.inventory[barcode_data] = 1
+        st.success(f"Manually added scanned item: {barcode_data}")
 
 st.subheader("Manual Entry")
 manual_name = st.text_input("Item Name")
