@@ -1,5 +1,6 @@
 streamlit
-pyzbar
+opencv-python
 pillow
 pandas
 openpyxl
+numpy
