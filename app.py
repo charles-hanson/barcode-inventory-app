@@ -1,11 +1,11 @@
 
 import streamlit as st
-from pyzbar.pyzbar import decode
+import cv2
+import numpy as np
 from PIL import Image
 import pandas as pd
 import io
 
-# Custom CSS for red, black, and white theme
 st.markdown("""
     <style>
         body {
@@ -17,10 +17,6 @@ st.markdown("""
         }
         h1, h2, h3, h4, h5, h6 {
             color: #d00000;
-        }
-        .css-1cpxqw2, .css-1v0mbdj, .css-1x8cf1d {
-            background-color: #d00000 !important;
-            color: #ffffff !important;
         }
         .stButton>button {
             background-color: #d00000;
@@ -46,18 +42,22 @@ if "inventory" not in st.session_state:
 
 if uploaded_image is not None:
     image = Image.open(uploaded_image)
-    decoded_objects = decode(image)
-
-    if decoded_objects:
-        for obj in decoded_objects:
-            barcode_data = obj.data.decode("utf-8")
-            if barcode_data in st.session_state.inventory:
-                st.session_state.inventory[barcode_data] += 1
-            else:
-                st.session_state.inventory[barcode_data] = 1
-            st.success(f"Scanned and added to inventory: {barcode_data}")
-    else:
-        st.warning("No barcode detected. Please try again.")
+    image_np = np.array(image.convert('RGB'))
+    gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
+    detector = cv2.wechat_qrcode_WeChatQRCode()
+    try:
+        results = detector.detectAndDecode(gray)
+        if results[1]:
+            for barcode_data in results[1]:
+                if barcode_data in st.session_state.inventory:
+                    st.session_state.inventory[barcode_data] += 1
+                else:
+                    st.session_state.inventory[barcode_data] = 1
+                st.success(f"Scanned and added to inventory: {barcode_data}")
+        else:
+            st.warning("No barcode detected. Please try again.")
+    except Exception as e:
+        st.error("Barcode detection failed. Make sure OpenCV is properly configured.")
 
 st.subheader("Manual Entry")
 manual_name = st.text_input("Item Name")
