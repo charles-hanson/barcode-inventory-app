@@ -1,7 +1,4 @@
-
 streamlit
-opencv-python
 pillow
 pandas
 openpyxl
-numpy
